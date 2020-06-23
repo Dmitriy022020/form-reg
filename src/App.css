@@ -80,10 +80,13 @@ select, option, input, span{
   background-color: rgba(95, 158, 160, 0.5);
 }
 
-.alert {
+.hidden {
   color: red;
   font-size: small;
+  visibility: hidden;
 }
-.hidden {
- visibility: hidden;
+.visible {
+  color: red;
+  font-size: small;
+  visibility: visible;
 }
