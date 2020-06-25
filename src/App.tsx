@@ -1,17 +1,7 @@
 import React, {useState} from 'react';
+import {SubForm} from "./types";
 import './App.css';
 
-type SubForm = {
-  email: string,
-  password: string,
-  rePassword: string,
-  city: string,
-  gender: string,
-  agree: boolean,
-  emailState: string,
-  passState: string,
-  rePassState: string,
-}
 
 function App() {
   const [email, setEmail] = useState('');
@@ -23,16 +13,7 @@ function App() {
   const [emailState, setEmailState] = useState('hidden')
   const [passState, setPassState] = useState('hidden')
   const [rePassState, setRePassState] = useState('hidden')
-  const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setEmail('');
-    setPassword('');
-    setRePassword('');
-    setCity('');
-    setGender('');
-    setAgree(false)
-    console.log('submit')
-  }
+
   const changeHandlerEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   }
@@ -51,7 +32,74 @@ function App() {
   const changeHandlerAgree = () => {
     setAgree(!agree);
   }
+  const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setEmail('');
+    setPassword('');
+    setRePassword('');
+    setCity('');
+    setGender('');
+    setAgree(false)
+    console.log('submit')
+  }
 
+  //---Проверка email---
+  const regexpEmail = /^[\w-.]{2,}@[\w-]{2,}\.[\w]{2,}$/;
+  const emailControl = regexpEmail.test(email);
+  const alertEmail = 'неверный формат';
+  const blurEmail = () => {
+    if (!emailControl) {
+      if (email !== '') {
+        setEmailState('visible')
+      }
+    }
+  }
+  if (emailState === 'visible') {
+    if (emailControl) {
+      setEmailState('hidden')
+    }
+  }
+
+//---Проверка пароля---
+  const regexpPass1 = /[0-9]/;
+  const regexpPass2 = /[A-Z]/;
+  const regexpPass3 = /[a-z]/;
+  const passControl1 = regexpPass1.test(password);
+  const passControl2 = regexpPass2.test(password);
+  const passControl3 = regexpPass3.test(password);
+  const passControlLength = password.length >= 8;
+  const passControl = passControl1 && passControl2 && passControl3 && passControlLength;
+  const alertPass = passControlLength ? (passControl ? 'ок' : 'цифры, заглавные и строчные лат. буквы') : 'слишком короткий пароль';
+  const blurPass = () => {
+    if (!passControl) {
+      if (password !== '') {
+        setPassState('visible')
+      }
+    }
+  }
+  if (passState === 'visible') {
+    if (passControl) {
+      setPassState('hidden')
+    }
+  }
+
+  //---Проверка повтора пароля---
+  const rePassControl = password === rePassword;
+  const alertRePass = 'пароль не совпадает';
+  const blurRePass = () => {
+    if (!rePassControl) {
+      if (rePassword !== '') {
+        setRePassState('visible')
+      }
+    }
+  }
+  if (rePassState === 'visible') {
+    if (rePassControl) {
+      setRePassState('hidden')
+    }
+  }
+
+//---Активность кнопки---
   const subForm: SubForm = {
     email,
     password,
@@ -63,58 +111,11 @@ function App() {
     passState,
     rePassState,
   }
-  const regexpEmail = /^[\w-.]{2,}@[\w-]{2,}\.[\w]{2,}$/
-  const emailControl = regexpEmail.test(email)
-  const blurEmail = () => {
-    if (!emailControl) {
-      if (email !== '') {
-        setEmailState('visible')
-      }
-    }
-  }
-  const focusEmail = () => {
-    setEmailState('hidden')
-  }
-  const alertEmail = 'неверный формат';
-
-  const regexpPass1 = /[0-9]/;
-  const regexpPass2 = /[A-Z]/;
-  const regexpPass3 = /[a-z]/;
-  const passControl1 = regexpPass1.test(password);
-  const passControl2 = regexpPass2.test(password);
-  const passControl3 = regexpPass3.test(password);
-  const passControlLength = password.length >= 8
-  const passControl = passControl1 && passControl2 && passControl3 && passControlLength;
-
-  const blurPass = () => {
-    if (!passControl) {
-      if (password !== '') {
-        setPassState('visible')
-      }
-    }
-  }
-  const focusPass = () => {
-    setPassState('hidden')
-  }
-  const alertPass = passControlLength ? (passControl ? 'ок' : 'цифры, заглавные и строчные лат. буквы') : 'слишком короткий пароль';
-  const rePassControl = password === rePassword
-  const blurRePass = () => {
-    if (!rePassControl) {
-      if (rePassword !== '') {
-        setRePassState('visible')
-      }
-    }
-  }
-  const focusRePass = () => {
-    setRePassState('hidden')
-  }
-  const alertRePass = 'пароль не совпадает';
-
   const activeButton = Object.values(subForm)
     .filter(e => e === false || e === '' || !emailControl || !passControl || !rePassControl)
     .length === 0
 
-  console.log(subForm)
+  console.log(subForm);
 
   return (
     <form onSubmit={submitHandler} className="app">
@@ -136,7 +137,6 @@ function App() {
             className='width'
             onChange={changeHandlerEmail}
             onBlur={blurEmail}
-            onFocus={focusEmail}
           />
           <i className={emailState}>{alertEmail}</i>
         </div>
@@ -148,7 +148,6 @@ function App() {
             placeholder='не менее 8 символов'
             onChange={changeHandlerPassword}
             onBlur={blurPass}
-            onFocus={focusPass}
           />
           <i className={passState}>{alertPass}</i>
         </div>
@@ -160,7 +159,6 @@ function App() {
             placeholder='повторите пароль'
             onChange={changeHandlerRePassword}
             onBlur={blurRePass}
-            onFocus={focusRePass}
           />
           <i className={rePassState}>{alertRePass}</i>
         </div>
