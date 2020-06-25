@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-import {SubForm} from "./types";
+import React, {useEffect, useState} from 'react';
 import './App.css';
 
 
@@ -14,25 +13,25 @@ function App() {
   const [passState, setPassState] = useState('hidden')
   const [rePassState, setRePassState] = useState('hidden')
 
-  const changeHandlerEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   }
-  const changeHandlerPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   }
-  const changeHandlerRePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerChangeRePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRePassword(event.target.value);
   }
-  const changeHandlerCity = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlerChangeCity = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCity(event.target.value);
   }
-  const changeHandlerGender = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerChangeGender = (event: React.ChangeEvent<HTMLInputElement>) => {
     setGender(event.target.value);
   }
-  const changeHandlerAgree = () => {
+  const handlerChangeAgree = () => {
     setAgree(!agree);
   }
-  const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+  const handlerSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setEmail('');
     setPassword('');
@@ -41,24 +40,27 @@ function App() {
     setGender('');
     setAgree(false)
     console.log('submit')
+    alert('Регистрация прошла успешно')
   }
 
   //---Проверка email---
   const regexpEmail = /^[\w-.]{2,}@[\w-]{2,}\.[\w]{2,}$/;
   const emailControl = regexpEmail.test(email);
   const alertEmail = 'неверный формат';
-  const blurEmail = () => {
+  const handlerBlurEmail = () => {
     if (!emailControl) {
       if (email !== '') {
         setEmailState('visible')
       }
     }
   }
-  if (emailState === 'visible') {
-    if (emailControl) {
-      setEmailState('hidden')
+  useEffect(() => {
+    if (emailState === 'visible') {
+      if (emailControl) {
+        setEmailState('hidden')
+      }
     }
-  }
+  }, [emailControl, emailState]);
 
 //---Проверка пароля---
   const regexpPass1 = /[0-9]/;
@@ -70,37 +72,41 @@ function App() {
   const passControlLength = password.length >= 8;
   const passControl = passControl1 && passControl2 && passControl3 && passControlLength;
   const alertPass = passControlLength ? (passControl ? 'ок' : 'цифры, заглавные и строчные лат. буквы') : 'слишком короткий пароль';
-  const blurPass = () => {
+  const handlerBlurPass = () => {
     if (!passControl) {
       if (password !== '') {
         setPassState('visible')
       }
     }
   }
-  if (passState === 'visible') {
-    if (passControl) {
-      setPassState('hidden')
+  useEffect(() => {
+    if (passState === 'visible') {
+      if (passControl) {
+        setPassState('hidden')
+      }
     }
-  }
+  }, [passControl, passState]);
 
   //---Проверка повтора пароля---
   const rePassControl = password === rePassword;
   const alertRePass = 'пароль не совпадает';
-  const blurRePass = () => {
+  const handlerBlurRePass = () => {
     if (!rePassControl) {
       if (rePassword !== '') {
         setRePassState('visible')
       }
     }
   }
-  if (rePassState === 'visible') {
-    if (rePassControl) {
-      setRePassState('hidden')
+  useEffect(() => {
+    if (rePassState === 'visible') {
+      if (rePassControl) {
+        setRePassState('hidden')
+      }
     }
-  }
+  },[rePassControl, rePassState]);
 
 //---Активность кнопки---
-  const subForm: SubForm = {
+  const subForm = {
     email,
     password,
     rePassword,
@@ -111,14 +117,15 @@ function App() {
     passState,
     rePassState,
   }
-  const activeButton = Object.values(subForm)
-    .filter(e => e === false || e === '' || !emailControl || !passControl || !rePassControl)
-    .length === 0
+  const isSubmitButtonDisable = Object.values(subForm)
+      .filter(e => e === false || e === '')
+      .length === 0
+    && emailControl && passControl && rePassControl;
 
   console.log(subForm);
 
   return (
-    <form onSubmit={submitHandler} className="app">
+    <form onSubmit={handlerSubmit} className="app">
       <div className='row_1'>
         <legend><h3>Регистрация</h3></legend>
       </div>
@@ -135,8 +142,8 @@ function App() {
             type='email'
             value={email}
             className='width'
-            onChange={changeHandlerEmail}
-            onBlur={blurEmail}
+            onChange={handlerChangeEmail}
+            onBlur={handlerBlurEmail}
           />
           <i className={emailState}>{alertEmail}</i>
         </div>
@@ -146,8 +153,8 @@ function App() {
             value={password}
             className='width'
             placeholder='не менее 8 символов'
-            onChange={changeHandlerPassword}
-            onBlur={blurPass}
+            onChange={handlerChangePassword}
+            onBlur={handlerBlurPass}
           />
           <i className={passState}>{alertPass}</i>
         </div>
@@ -157,15 +164,15 @@ function App() {
             value={rePassword}
             className='width'
             placeholder='повторите пароль'
-            onChange={changeHandlerRePassword}
-            onBlur={blurRePass}
+            onChange={handlerChangeRePassword}
+            onBlur={handlerBlurRePass}
           />
           <i className={rePassState}>{alertRePass}</i>
         </div>
         <select
           value={city}
           className='width'
-          onChange={changeHandlerCity}
+          onChange={handlerChangeCity}
         >
           <option defaultValue='' hidden>
             выбрать
@@ -186,7 +193,7 @@ function App() {
               type='radio'
               value='мужской'
               name='gender'
-              onChange={changeHandlerGender}
+              onChange={handlerChangeGender}
             />
             мужской
           </label>
@@ -195,7 +202,7 @@ function App() {
               type='radio'
               value='женский'
               name='gender'
-              onChange={changeHandlerGender}
+              onChange={handlerChangeGender}
             />
             женский
           </label>
@@ -203,18 +210,20 @@ function App() {
       </div>
       <div className='row_3'>
         <span>
-          <input
-            type='checkbox'
-            className='checkbox'
-            checked={agree}
-            onChange={changeHandlerAgree}
-          />
-          <label>Согласие на обработку персональных данных</label>
+          <label>
+            <input
+              type='checkbox'
+              className='checkbox'
+              checked={agree}
+              onChange={handlerChangeAgree}
+            />
+          Согласие на обработку персональных данных
+          </label>
         </span>
         <button
           type='submit'
-          disabled={!activeButton}
-          className={activeButton ? 'button' : 'button_hidden button'}
+          disabled={!isSubmitButtonDisable}
+          className={isSubmitButtonDisable ? 'button' : 'button_hidden button'}
         >
           Подтвердить
         </button>
