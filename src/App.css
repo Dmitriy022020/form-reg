@@ -90,3 +90,8 @@ select, option, input, span{
   font-size: small;
   visibility: visible;
 }
+.error {
+  color: red;
+  font-size: small;
+  visibility: visible;
+}

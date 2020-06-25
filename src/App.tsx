@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import './App.css';
 
 
@@ -9,9 +9,9 @@ function App() {
   const [city, setCity] = useState('');
   const [gender, setGender] = useState('');
   const [agree, setAgree] = useState(false);
-  const [emailState, setEmailState] = useState('hidden')
-  const [passState, setPassState] = useState('hidden')
-  const [rePassState, setRePassState] = useState('hidden')
+  const [emailError, setEmailError] = useState(false)
+  const [passError, setPassError] = useState(false)
+  const [rePassError, setRePassError] = useState(false)
 
   const handlerChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -48,19 +48,15 @@ function App() {
   const emailControl = regexpEmail.test(email);
   const alertEmail = 'неверный формат';
   const handlerBlurEmail = () => {
-    if (!emailControl) {
-      if (email !== '') {
-        setEmailState('visible')
-      }
-    }
+    setEmailError(true)
   }
-  useEffect(() => {
-    if (emailState === 'visible') {
-      if (emailControl) {
-        setEmailState('hidden')
-      }
-    }
-  }, [emailControl, emailState]);
+  // useEffect(() => {
+  //   if (!emailControl && email !== '') {
+  //     setEmailError(true)
+  //   } else {
+  //     setEmailError(false)
+  //   }
+  // }, [emailControl, email]);
 
 //---Проверка пароля---
   const regexpPass1 = /[0-9]/;
@@ -73,37 +69,29 @@ function App() {
   const passControl = passControl1 && passControl2 && passControl3 && passControlLength;
   const alertPass = passControlLength ? (passControl ? 'ок' : 'цифры, заглавные и строчные лат. буквы') : 'слишком короткий пароль';
   const handlerBlurPass = () => {
-    if (!passControl) {
-      if (password !== '') {
-        setPassState('visible')
-      }
-    }
+    setPassError(true)
   }
-  useEffect(() => {
-    if (passState === 'visible') {
-      if (passControl) {
-        setPassState('hidden')
-      }
-    }
-  }, [passControl, passState]);
+  // useEffect(() => {
+  //   if (!passControl && password !== '') {
+  //     setPassError(true)
+  //   } else {
+  //     setPassError(false)
+  //   }
+  // }, [passControl, password]);
 
   //---Проверка повтора пароля---
   const rePassControl = password === rePassword;
   const alertRePass = 'пароль не совпадает';
   const handlerBlurRePass = () => {
-    if (!rePassControl) {
-      if (rePassword !== '') {
-        setRePassState('visible')
-      }
-    }
+    setRePassError(true)
   }
-  useEffect(() => {
-    if (rePassState === 'visible') {
-      if (rePassControl) {
-        setRePassState('hidden')
-      }
-    }
-  },[rePassControl, rePassState]);
+  // useEffect(() => {
+  //   if (!rePassControl && rePassword !== '') {
+  //     setRePassError(true)
+  //   } else {
+  //     setRePassError(false)
+  //   }
+  // }, [rePassControl, rePassword]);
 
 //---Активность кнопки---
   const subForm = {
@@ -113,9 +101,9 @@ function App() {
     city,
     gender,
     agree,
-    emailState,
-    passState,
-    rePassState,
+    emailError,
+    passError,
+    rePassError,
   }
   const isSubmitButtonDisable = Object.values(subForm)
       .filter(e => e === false || e === '')
@@ -145,7 +133,7 @@ function App() {
             onChange={handlerChangeEmail}
             onBlur={handlerBlurEmail}
           />
-          <i className={emailState}>{alertEmail}</i>
+          {!emailControl && email !== '' && emailError && <i className='error'>{alertEmail}</i>}
         </div>
         <div>
           <input
@@ -156,7 +144,7 @@ function App() {
             onChange={handlerChangePassword}
             onBlur={handlerBlurPass}
           />
-          <i className={passState}>{alertPass}</i>
+          {passError && !passControl && password !== '' && <i className='error'>{alertPass}</i>}
         </div>
         <div>
           <input
@@ -167,7 +155,7 @@ function App() {
             onChange={handlerChangeRePassword}
             onBlur={handlerBlurRePass}
           />
-          <i className={rePassState}>{alertRePass}</i>
+          {rePassError && !rePassControl && rePassword !== '' && <i className='error'>{alertRePass}</i>}
         </div>
         <select
           value={city}
@@ -194,6 +182,7 @@ function App() {
               value='мужской'
               name='gender'
               onChange={handlerChangeGender}
+              checked={(gender === 'мужской')}
             />
             мужской
           </label>
@@ -203,6 +192,7 @@ function App() {
               value='женский'
               name='gender'
               onChange={handlerChangeGender}
+              checked={(gender === 'женский')}
             />
             женский
           </label>
