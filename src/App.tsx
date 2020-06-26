@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
 
 
@@ -9,9 +9,12 @@ function App() {
   const [city, setCity] = useState('');
   const [gender, setGender] = useState('');
   const [agree, setAgree] = useState(false);
-  const [emailError, setEmailError] = useState(false)
-  const [passError, setPassError] = useState(false)
-  const [rePassError, setRePassError] = useState(false)
+  const [emailWasBlur, setEmailWasBlur] = useState(false);
+  const [passWasBlur, setPassWasBlur] = useState(false);
+  const [rePassWasBlur, setRePassWasBlur] = useState(false);
+  const [alertEmail, setAlertEmail] = useState('');
+  const [alertPass, setAlertPass] = useState('');
+  const [alertRePass, setAlertRePass] = useState('');
 
   const handlerChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -38,60 +41,57 @@ function App() {
     setRePassword('');
     setCity('');
     setGender('');
-    setAgree(false)
-    console.log('submit')
-    alert('Регистрация прошла успешно')
+    setAgree(false);
+    console.log('submit');
+    alert('Регистрация прошла успешно');
   }
 
   //---Проверка email---
-  const regexpEmail = /^[\w-.]{2,}@[\w-]{2,}\.[\w]{2,}$/;
-  const emailControl = regexpEmail.test(email);
-  const alertEmail = 'неверный формат';
-  const handlerBlurEmail = () => {
-    setEmailError(true)
-  }
-  // useEffect(() => {
-  //   if (!emailControl && email !== '') {
-  //     setEmailError(true)
-  //   } else {
-  //     setEmailError(false)
-  //   }
-  // }, [emailControl, email]);
+  useEffect(() => {
+    if (!emailWasBlur || email === '') {
+      return;
+    }
+    const regexpEmail = /^[\w-.]{2,}@[\w-]{2,}\.[\w]{2,}$/;
+    const emailControl = regexpEmail.test(email);
+    setAlertEmail((emailControl) ? '' : 'неверный формат');
+  }, [email, emailWasBlur]);
 
-//---Проверка пароля---
-  const regexpPass1 = /[0-9]/;
-  const regexpPass2 = /[A-Z]/;
-  const regexpPass3 = /[a-z]/;
-  const passControl1 = regexpPass1.test(password);
-  const passControl2 = regexpPass2.test(password);
-  const passControl3 = regexpPass3.test(password);
-  const passControlLength = password.length >= 8;
-  const passControl = passControl1 && passControl2 && passControl3 && passControlLength;
-  const alertPass = passControlLength ? (passControl ? 'ок' : 'цифры, заглавные и строчные лат. буквы') : 'слишком короткий пароль';
-  const handlerBlurPass = () => {
-    setPassError(true)
+  const handlerBlurEmail = () => {
+    setEmailWasBlur(true);
   }
-  // useEffect(() => {
-  //   if (!passControl && password !== '') {
-  //     setPassError(true)
-  //   } else {
-  //     setPassError(false)
-  //   }
-  // }, [passControl, password]);
+
+  //---Проверка пароля---
+  useEffect(() => {
+    if (!passWasBlur || password === '') {
+      return;
+    }
+    const regexpPass1 = /[0-9]/;
+    const regexpPass2 = /[A-Z]/;
+    const regexpPass3 = /[a-z]/;
+    const passControl1 = regexpPass1.test(password);
+    const passControl2 = regexpPass2.test(password);
+    const passControl3 = regexpPass3.test(password);
+    const passControlLength = password.length >= 8;
+    const passControl = passControl1 && passControl2 && passControl3 && passControlLength;
+    setAlertPass(passControlLength ? (passControl ? '' : 'цифры, заглавные и строчные лат. буквы') : 'слишком короткий пароль');
+  }, [password, passWasBlur]);
+
+  const handlerBlurPass = () => {
+    setPassWasBlur(true);
+  }
 
   //---Проверка повтора пароля---
-  const rePassControl = password === rePassword;
-  const alertRePass = 'пароль не совпадает';
+  useEffect(() => {
+    if (!rePassWasBlur || rePassword === '') {
+      return;
+    }
+    const rePassControl = password === rePassword;
+    setAlertRePass(rePassControl ? '' : 'пароль не совпадает');
+  }, [password, rePassword, rePassWasBlur]);
+
   const handlerBlurRePass = () => {
-    setRePassError(true)
+    setRePassWasBlur(true);
   }
-  // useEffect(() => {
-  //   if (!rePassControl && rePassword !== '') {
-  //     setRePassError(true)
-  //   } else {
-  //     setRePassError(false)
-  //   }
-  // }, [rePassControl, rePassword]);
 
 //---Активность кнопки---
   const subForm = {
@@ -101,62 +101,57 @@ function App() {
     city,
     gender,
     agree,
-    emailError,
-    passError,
-    rePassError,
   }
   const isSubmitButtonDisable = Object.values(subForm)
       .filter(e => e === false || e === '')
       .length === 0
-    && emailControl && passControl && rePassControl;
+    && !alertEmail && !alertPass && !alertRePass;
 
   console.log(subForm);
 
   return (
     <form onSubmit={handlerSubmit} className="app">
-      <div className='row_1'>
+      <div className='header'>
         <legend><h3>Регистрация</h3></legend>
       </div>
-      <div className='col_1'>
-        <label>E-mail</label>
-        <label>Пароль</label>
-        <label>Пароль еще раз</label>
-        <label>Город</label>
-        <label>Пол</label>
+      <label className='email'>E-mail</label>
+      <label className='pass'>Пароль</label>
+      <label className='rePass'>Пароль еще раз</label>
+      <label className='city'>Город</label>
+      <label className='gender'>Пол</label>
+      <div className='emailInput column'>
+        <input
+          type='email'
+          value={email}
+          className='width'
+          onChange={handlerChangeEmail}
+          onBlur={handlerBlurEmail}
+        />
+        {alertEmail && <i className='error'>{alertEmail}</i>}
       </div>
-      <div className='col_2'>
-        <div>
-          <input
-            type='email'
-            value={email}
-            className='width'
-            onChange={handlerChangeEmail}
-            onBlur={handlerBlurEmail}
-          />
-          {!emailControl && email !== '' && emailError && <i className='error'>{alertEmail}</i>}
-        </div>
-        <div>
-          <input
-            type='password'
-            value={password}
-            className='width'
-            placeholder='не менее 8 символов'
-            onChange={handlerChangePassword}
-            onBlur={handlerBlurPass}
-          />
-          {passError && !passControl && password !== '' && <i className='error'>{alertPass}</i>}
-        </div>
-        <div>
-          <input
-            type='password'
-            value={rePassword}
-            className='width'
-            placeholder='повторите пароль'
-            onChange={handlerChangeRePassword}
-            onBlur={handlerBlurRePass}
-          />
-          {rePassError && !rePassControl && rePassword !== '' && <i className='error'>{alertRePass}</i>}
-        </div>
+      <div className='passInput column'>
+        <input
+          type='password'
+          value={password}
+          className='width'
+          placeholder='не менее 8 символов'
+          onChange={handlerChangePassword}
+          onBlur={handlerBlurPass}
+        />
+        {alertPass && <i className='error'>{alertPass}</i>}
+      </div>
+      <div className='rePassInput column'>
+        <input
+          type='password'
+          value={rePassword}
+          className='width'
+          placeholder='повторите пароль'
+          onChange={handlerChangeRePassword}
+          onBlur={handlerBlurRePass}
+        />
+        {alertRePass && <i className='error'>{alertRePass}</i>}
+      </div>
+      <div className='cityInput column'>
         <select
           value={city}
           className='width'
@@ -175,7 +170,8 @@ function App() {
             Санкт-Петербург
           </option>
         </select>
-        <span>
+      </div>
+      <span className='genderInput'>
           <label>
             <input
               type='radio'
@@ -197,19 +193,16 @@ function App() {
             женский
           </label>
         </span>
-      </div>
-      <div className='row_3'>
-        <span>
-          <label>
-            <input
-              type='checkbox'
-              className='checkbox'
-              checked={agree}
-              onChange={handlerChangeAgree}
-            />
-          Согласие на обработку персональных данных
-          </label>
-        </span>
+      <label className='agreeInput'>
+        <input
+          type='checkbox'
+          className='checkbox'
+          checked={agree}
+          onChange={handlerChangeAgree}
+        />
+        Согласие на обработку персональных данных
+      </label>
+      <div className='footer'>
         <button
           type='submit'
           disabled={!isSubmitButtonDisable}
